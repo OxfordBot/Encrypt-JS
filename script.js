@@ -78,13 +78,3 @@ const EncryptJS = (function() {
         }
     }
 })()
-const App = (function(EncryptJS) {
-    const start = async () => {
-        const key = await EncryptJS.generate_key(36)
-        const encrypted = await EncryptJS.encrypt("Hello! I am Zavier. How are you?", key)
-        console.log(encrypted)
-        const decrypted = await EncryptJS.decrypt(encrypted, key)
-        console.log(decrypted)
-    }
-    start()
-})(EncryptJS)
