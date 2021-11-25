@@ -1,20 +1,11 @@
 const EncryptJS = (function() {
-    const _generate_key = async (length) => {
-        const characters = "abcdefghijklmnopqrstuvwxyz0123456789"
-        if (length < characters.length || length === characters.length) {
-            var key = ""
-            var used_characters = []
-            while (key.length < length) {
-                const character = characters[Math.floor(Math.random() * characters.length)]
-                if (used_characters.includes(character) != true) {
-                    used_characters.push(character)
-                    key += character
-                }
-            }
-            return key
-        } else {
-            return null
-        }
+        var encodings = []
+    var count = 0
+    var chars = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&()-=[];'\\,./~_+{}:"|<>? `
+    for (var char in chars) {
+        char = chars[char]
+        encodings.push([count.toString(), char])
+        count += 1
     }
     const read_key = async (text, key) => {
         var count = 0
@@ -24,52 +15,74 @@ const EncryptJS = (function() {
             count += 1
         }
         while (ords.length < text.length) {
-            ords += ords
+            ords += "," + ords
         }
         return ords
     }
-    const _encrypt = async (text, key) => {
-        const ords = await read_key(text, key)
-        var count = 0
-        var encrypted = ""
-        text = text.split("").reverse().join("")
-        for (var char in text) {
-            char = text[char].charCodeAt(0)
-            ord = ords[count]
-            if (ord > 4) {
-                char += ord
-            } else {
-                char -= ord
+    const encode = async (text) => {
+        var count_letter = 0
+        var encoded = ""
+        for (var letter in text) {
+            letter = text[letter]
+            for (var encoding in encodings) {
+                encoding = encodings[encoding]
+                if (letter === encoding[1]) {
+                    code = encoding[0]
+                    break
+                }
             }
-            char = String.fromCharCode(char)
-            encrypted += char
-            count += 1
+            if (count_letter < text.length-1) {
+                encoded += code + "-"
+            } else {
+                encoded += code
+            }
+            count_letter += 1
+        }
+        return encoded
+    }
+    const decode = async (text) => {
+        text = text.split("-")
+        var decoded = ""
+        for (var number in text) {
+            number = text[number]
+            for (var encoding in encodings) {
+                encoding = encodings[encoding]
+                if (number === encoding[0]) {
+                    char = encoding[1]
+                    decoded += char
+                    break
+                }
+            }
+        }
+        return decoded
+    }
+    const _encrypt = async (text, key) => {
+        encoded = await encode(text) /*     Grade 1: Encoding     */
+        encrypted = ""
+        var count_num = 0
+        for (var character in encoded) {
+            character = encoded[character]
+            code = character.charCodeAt(0)
+            chr = String.fromCharCode(code + 9)
+            encrypted += chr
+            count_num += 1
         }
         return encrypted
     }
     const _decrypt = async (text, key) => {
-        const ords = await read_key(text, key)
-        var count = 0
-        var decrypted = ""
-        for (var char in text) {
-            char = text[char].charCodeAt(0)
-            ord = ords[count]
-            if (ord > 4) {
-                char -= ord
-            } else {
-                char += ord
-            }
-            char = String.fromCharCode(char)
-            decrypted += char
-            count += 1
+        decrypted = ""
+        var count_num = 0
+        for (var character in text) {
+            character = text[character]
+            code = character.charCodeAt(0)
+            chr = String.fromCharCode(code - 9)
+            decrypted += chr
+            count_num += 1
         }
-        decrypted = decrypted.split("").reverse().join("")
-        return decrypted
+        decoded = await decode(decrypted) /*     Grade 1: Encoding     */
+        return decoded
     }
     return {
-        generate_key(length) {
-            return _generate_key(length)
-        },
         encrypt(text, key) {
             return _encrypt(text, key)
         },
