@@ -1,5 +1,5 @@
 const EncryptJS = (function() {
-        var encodings = []
+    var encodings = []
     var count = 0
     var chars = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&()-=[];'\\,./~_+{}:"|<>? `
     for (var char in chars) {
